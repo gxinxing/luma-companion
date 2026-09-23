@@ -1,6 +1,8 @@
 # 安装 Ricky 签名版 Luma
 
-`LumaCompanion-dev.ipa` 使用 Ricky 的付费 Apple Developer 团队签名，只能安装到描述文件已登记的设备。目前包含：
+`LumaCompanion-dev.ipa` 使用 Ricky 的付费 Apple Developer 团队签名，只能安装到描述文件已登记的设备。当前文件 SHA-256：`05ed4f4a33f46bb249d0c091af65c42998256c45099bc4b3db00da13f62b7533`。
+
+目前包含：
 
 - Ricky iPhone 17 Pro：`00008150-000919D436EA401C`
 - 星星 iPhone 15 Pro：`00008130-001E35880A90001C`
