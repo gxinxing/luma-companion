@@ -54,13 +54,13 @@ open LumaCompanion.xcodeproj   # Xcode 里选真机 iPhone 运行
 ```
 
 - **必须真机**：模拟器没有蓝牙/热点。模拟器只能编译看 UI。
-- **真机构建要求**：Xcode 登录 Apple ID（免费个人团队即可）；**团队 ID 是
-  `2TTT5WBW7Y`**（已写入 project.yml；免费账户第一次 Run 时 Xcode 自动注册 App ID、
-  创建描述文件）。
-- **眼镜 Wi-Fi 需手动加入（免费账户限制）**：免费个人团队**不支持 Hotspot
-  Configuration 权限**（已从 entitlements 移除该 key），因此「记忆」/「实时」首次
-  使用时按 App 屏幕提示到 设置▸Wi-Fi 手动加入眼镜网络（屏幕会显示 SSID+密码），
-  一次性——之后 iOS 自动关联。付费开发者账号可恢复 entitlement 走全自动流程。
+- **真机构建要求**：默认配置使用 Ricky 的付费团队 `YZYR3VWPA3` 和 Bundle ID
+  `com.rickyke.lumacompanion`。免费个人团队也能运行，但要把 `DEVELOPMENT_TEAM` 和
+  Bundle ID 换成自己的值，并同时删除 entitlement 中的 Hotspot Configuration key 与
+  `SWIFT_ACTIVE_COMPILATION_CONDITIONS` 中的 `HOTSPOT_CONFIGURATION`。
+- **眼镜 Wi-Fi**：默认付费签名包含 Hotspot Configuration，进入「记忆」或「实时」时
+  自动加入眼镜热点。免费个人团队不支持该权限；按上一条关闭构建开关后，App 会显示
+  SSID 和密码，引导首次到 设置▸Wi-Fi 手动加入，之后由 iOS 记住该网络。
 - 首次运行 iOS 会弹蓝牙与本地网络权限。
 - 与原厂 EyeVue 共用一条 BLE 连接：测试前把 EyeVue 的连接断开（或蓝牙关掉）。
 
@@ -86,23 +86,11 @@ LumaCompanion/
 
 ## 验证状态（诚实边界）
 
-- 2026-09-24 02:45：**提交前冲刺轮——31 项审计修复完成**（双线审计 38 项发现；崩溃级 5、演示主链路 9、交互/数据 17；另有 7 项有据不修）。构建与部署：
-  - iOS Simulator（iPhone 17 / iOS 26.5）：`xcodebuild … build` → **BUILD SUCCEEDED**，安装+启动+截图确认 UI 正常渲染
-  - iOS 真机（iPhone 15 Pro，team 2TTT5WBW7Y）：签名构建 **BUILD SUCCEEDED**，已 `devicectl` 安装（解锁点图标即启动）
-  - **当前完整交接见 [`HANDOFF.md`](./HANDOFF.md)**（重建命令、令牌排查、待办、代码地图、坑清单——接手前必读）
-- 2026-09-23：**完整 Xcode 构建双平台通过**——
-  - iOS Simulator（arm64，iOS 26.5 runtime）：`xcodebuild -scheme LumaCompanion -destination 'generic/platform=iOS Simulator' build` → **BUILD SUCCEEDED**
-  - iOS 真机（arm64，无签名验证构建）：`-destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO` → **BUILD SUCCEEDED**
-  - 含 SPM 解析（LumaCore 本地包）与 Rust 静态库（`-lluma_core`）真实链接。
-  - 全部源码另经 `swiftc -typecheck` 单独验证（10 个源文件 + 真实生成 binding）。
-- 构建本机曾缺 iOS 平台组件：已用 `xcodebuild -downloadPlatform iOS` 装上 iOS 26.5
-  模拟器 runtime（8.52 GB）。**新建源文件后必须重跑 `xcodegen`**，否则文件不进工程
-  （CaptureStore.swift 首次构建因此失败过一次）。
-- 真机 BLE/热点/RTSP **仍未端到端实测**（模拟器无蓝牙硬件；02:45 前的修复轮基于静态审计 +
-  构建验证）。眼镜下次开机后按 HANDOFF §5 清单实测：自动连接、拍照回传、卡片滑动、
-  实时复播、记忆热点流程、断连重连窗口。
-- 已知简化：下载暂无进度条（文件小、走眼镜热点）。
-- 本目录不是 git 仓库（工作区约定：`luma-core` 才是上游 SDK 仓库）。
+- 2026-09-24：iPhone 17 Pro / iOS 26.5 模拟器构建通过；Ricky iPhone 17 Pro 的付费开发签名构建和安装已完成，最终版启动与上报待 Ricky 解锁后由主控补验。
+- Ricky 与星星两台 iPhone 均已登记到同一开发描述文件；开发 IPA 已核对 Bundle ID、Hotspot entitlement、两台 UDID 和一年有效期。安装方式见 [`docs/INSTALL-ricky-signed.md`](docs/INSTALL-ricky-signed.md)。
+- 公网 `verify-swarm.sh` 只发送一条合成 `device/glasses` 刺激并回查命中。合成刺激只证明 HTTP 合同，不代表眼镜采集。
+- 真实眼镜 BLE、拍照、RTSP 和热点端到端仍未验证；没有眼镜时不把本地相册内容冒充 `device/glasses`。
+- 完整重建与行为边界见 [`HANDOFF.md`](./HANDOFF.md)。新增 Swift 文件或修改 `project.yml` 后必须重新运行 `xcodegen`。
 
 ## 给下一个 agent
 
