@@ -86,7 +86,7 @@ LumaCompanion/
 
 ## 验证状态（诚实边界）
 
-- 2026-09-24：iPhone 17 Pro / iOS 26.5 模拟器构建通过；Ricky iPhone 17 Pro 的付费开发签名构建、安装、启动和 30 秒存活检查通过，未发现对应崩溃日志。
+- 2026-09-24：iPhone 17 Pro / iOS 26.5 模拟器构建通过；Ricky iPhone 17 Pro 的付费开发签名构建和安装已完成，最终版启动与上报待 Ricky 解锁后由主控补验。
 - Ricky 与星星两台 iPhone 均已登记到同一开发描述文件；开发 IPA 已核对 Bundle ID、Hotspot entitlement、两台 UDID 和一年有效期。安装方式见 [`docs/INSTALL-ricky-signed.md`](docs/INSTALL-ricky-signed.md)。
 - 公网 `verify-swarm.sh` 只发送一条合成 `device/glasses` 刺激并回查命中。合成刺激只证明 HTTP 合同，不代表眼镜采集。
 - 真实眼镜 BLE、拍照、RTSP 和热点端到端仍未验证；没有眼镜时不把本地相册内容冒充 `device/glasses`。

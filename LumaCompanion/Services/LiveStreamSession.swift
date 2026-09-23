@@ -170,9 +170,8 @@ final class LiveStreamSession: ObservableObject {
     /// UDP 端口与 RTSP/TCP 也必须在这里放开：它们同样只活在 stop() 里，留着会让下
     /// 一轮 bind() 撞上 port in use。
     private func abandon() {
-        teardownResources()
         let leaving = ssid
-        ssid = nil
+        teardownResources()
         Task {
             // 0x44 无条件发：告诉眼镜"都拿完了"，让它关掉图像处理器、撤掉热点。
             await link.write("fileDownloadComplete", glassesFileDownloadComplete())
