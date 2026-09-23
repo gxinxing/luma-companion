@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Free personal teams cannot provision the Hotspot Configuration entitlement
+	     ("Personal development teams do not support the Hotspot capability"), so the
+	     automatic Wi-Fi join is disabled in free-account builds. The glasses Wi-Fi is
+	     joined MANUALLY in iOS Settings instead; the app surfaces the SSID and the
+	     passphrase (from the 0x25 push) for that flow. -->
+</dict>
+</plist>

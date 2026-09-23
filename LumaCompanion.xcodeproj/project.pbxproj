@@ -1,0 +1,469 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3B4A46828DF7DA9A5A089962 /* SwipeableCaptureCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DD44869CE390A9994B1026C /* SwipeableCaptureCard.swift */; };
+		3CDC35C1D55F258016CE41B1 /* ImageDecodeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32471DB9C3DEA5F85AFEBAB8 /* ImageDecodeCache.swift */; };
+		4706C942C25F87FAE6928A6F /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D9B576892E60D830EAD137 /* Theme.swift */; };
+		490DB982E1D941A5E883E2A4 /* GlassesLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D852C4D1C1799ED51C71218 /* GlassesLink.swift */; };
+		5D0914815DB6E1C55DEA0393 /* SwarmLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA6EF25485260E568D3D472 /* SwarmLink.swift */; };
+		602F81698A890A36BB477D9A /* LumaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9AAB808D928F79B53999847C /* LumaCore */; };
+		6B3814D4DE59FAF19F16F74D /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549B0AECDB8BCEA0C1FFD2ED /* CaptureView.swift */; };
+		70065458DCE180B06D7E5BF3 /* FileApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 423929219E12C25BBC21B381 /* FileApiClient.swift */; };
+		763C3B2E9B5C3E24CF8B3260 /* MemoriesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189A7502E2E4A531E0D54D55 /* MemoriesScreen.swift */; };
+		8938905933C8FA94D41B840D /* LiveAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B6531936CB5D3177BD4155 /* LiveAudioPlayer.swift */; };
+		898A9F32CD2104B8E9D04943 /* CaptureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71ACDD5E57026FAD9A23BB0A /* CaptureStore.swift */; };
+		AD4FCDE7BEC738BE7058D818 /* LiveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23422479BBF371DA72FD3A5 /* LiveScreen.swift */; };
+		C898812D1140FFBE400EEF27 /* LiveStreamSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04CAC15F7B77AA01A1298AE /* LiveStreamSession.swift */; };
+		CD3C908D8E8FC2E8CF683B36 /* LumaCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21E45F4070D500B29F4AA98 /* LumaCompanionApp.swift */; };
+		F152DA0CEE45AC4FA617746B /* GlassesWiFi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A65BFE4F14B9400E16639B /* GlassesWiFi.swift */; };
+		F41F979ABD6E5997DF1D2CFA /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155A55E0B1A7CCF2AF810332 /* DeviceView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		05A65BFE4F14B9400E16639B /* GlassesWiFi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassesWiFi.swift; sourceTree = "<group>"; };
+		0ABAE10AF744CD960552A370 /* LumaCompanion.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LumaCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		155A55E0B1A7CCF2AF810332 /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
+		189A7502E2E4A531E0D54D55 /* MemoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoriesScreen.swift; sourceTree = "<group>"; };
+		32471DB9C3DEA5F85AFEBAB8 /* ImageDecodeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDecodeCache.swift; sourceTree = "<group>"; };
+		369FF517B91422DEEB00ED43 /* LumaCompanion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LumaCompanion.entitlements; sourceTree = "<group>"; };
+		3D852C4D1C1799ED51C71218 /* GlassesLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassesLink.swift; sourceTree = "<group>"; };
+		423929219E12C25BBC21B381 /* FileApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileApiClient.swift; sourceTree = "<group>"; };
+		4B6339784B12B3DC44ED3CF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4DD44869CE390A9994B1026C /* SwipeableCaptureCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeableCaptureCard.swift; sourceTree = "<group>"; };
+		549B0AECDB8BCEA0C1FFD2ED /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
+		5DA6EF25485260E568D3D472 /* SwarmLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwarmLink.swift; sourceTree = "<group>"; };
+		71ACDD5E57026FAD9A23BB0A /* CaptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureStore.swift; sourceTree = "<group>"; };
+		949DEE77EFF412E84AEA9651 /* LumaCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LumaCore; path = "../luma-core/ios/LumaCore"; sourceTree = SOURCE_ROOT; };
+		B21E45F4070D500B29F4AA98 /* LumaCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumaCompanionApp.swift; sourceTree = "<group>"; };
+		C23422479BBF371DA72FD3A5 /* LiveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveScreen.swift; sourceTree = "<group>"; };
+		E0B6531936CB5D3177BD4155 /* LiveAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAudioPlayer.swift; sourceTree = "<group>"; };
+		E0D9B576892E60D830EAD137 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		F04CAC15F7B77AA01A1298AE /* LiveStreamSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveStreamSession.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		886F1B2A73026E6091823BE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				602F81698A890A36BB477D9A /* LumaCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1C0DF5BC2A723137B2480E4E /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				549B0AECDB8BCEA0C1FFD2ED /* CaptureView.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		38FEFD657D8C56818421F1B6 /* Device */ = {
+			isa = PBXGroup;
+			children = (
+				155A55E0B1A7CCF2AF810332 /* DeviceView.swift */,
+			);
+			path = Device;
+			sourceTree = "<group>";
+		};
+		5E28A66D6E50C6CCAE694E12 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				949DEE77EFF412E84AEA9651 /* LumaCore */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		5E73DDA0621A0FC280BDC1BE /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				423929219E12C25BBC21B381 /* FileApiClient.swift */,
+				3D852C4D1C1799ED51C71218 /* GlassesLink.swift */,
+				05A65BFE4F14B9400E16639B /* GlassesWiFi.swift */,
+				E0B6531936CB5D3177BD4155 /* LiveAudioPlayer.swift */,
+				F04CAC15F7B77AA01A1298AE /* LiveStreamSession.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		7F420A6D51223F7FE1953BF7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0ABAE10AF744CD960552A370 /* LumaCompanion.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8D34C53ECFC5D24A5A0912B4 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				1C0DF5BC2A723137B2480E4E /* Capture */,
+				38FEFD657D8C56818421F1B6 /* Device */,
+				BBD496A07C40437E1BFE79B8 /* Live */,
+				DA0B9FD441C1A8B3F5C3DCDF /* Memories */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		BBD496A07C40437E1BFE79B8 /* Live */ = {
+			isa = PBXGroup;
+			children = (
+				C23422479BBF371DA72FD3A5 /* LiveScreen.swift */,
+			);
+			path = Live;
+			sourceTree = "<group>";
+		};
+		C77244EDC9486D8C6F3D4B0A = {
+			isa = PBXGroup;
+			children = (
+				E5256332ED67B6457BDE1D7B /* LumaCompanion */,
+				5E28A66D6E50C6CCAE694E12 /* Packages */,
+				7F420A6D51223F7FE1953BF7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DA0B9FD441C1A8B3F5C3DCDF /* Memories */ = {
+			isa = PBXGroup;
+			children = (
+				189A7502E2E4A531E0D54D55 /* MemoriesScreen.swift */,
+			);
+			path = Memories;
+			sourceTree = "<group>";
+		};
+		E5256332ED67B6457BDE1D7B /* LumaCompanion */ = {
+			isa = PBXGroup;
+			children = (
+				4B6339784B12B3DC44ED3CF7 /* Info.plist */,
+				369FF517B91422DEEB00ED43 /* LumaCompanion.entitlements */,
+				B21E45F4070D500B29F4AA98 /* LumaCompanionApp.swift */,
+				8D34C53ECFC5D24A5A0912B4 /* Features */,
+				5E73DDA0621A0FC280BDC1BE /* Services */,
+				FAD39FA6BF0F8AD13000691A /* Support */,
+			);
+			path = LumaCompanion;
+			sourceTree = "<group>";
+		};
+		FAD39FA6BF0F8AD13000691A /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				71ACDD5E57026FAD9A23BB0A /* CaptureStore.swift */,
+				32471DB9C3DEA5F85AFEBAB8 /* ImageDecodeCache.swift */,
+				5DA6EF25485260E568D3D472 /* SwarmLink.swift */,
+				4DD44869CE390A9994B1026C /* SwipeableCaptureCard.swift */,
+				E0D9B576892E60D830EAD137 /* Theme.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		74FBFEDE677E821B8CAE7272 /* LumaCompanion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD2F32D955E725C51F2746AB /* Build configuration list for PBXNativeTarget "LumaCompanion" */;
+			buildPhases = (
+				ADF8E5D419A2AA035B1FD928 /* Sources */,
+				886F1B2A73026E6091823BE5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LumaCompanion;
+			packageProductDependencies = (
+				9AAB808D928F79B53999847C /* LumaCore */,
+			);
+			productName = LumaCompanion;
+			productReference = 0ABAE10AF744CD960552A370 /* LumaCompanion.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BAFFB31D699997EE1FC699BE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					74FBFEDE677E821B8CAE7272 = {
+						DevelopmentTeam = 2TTT5WBW7Y;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 9A889D52C233F92009BFA47B /* Build configuration list for PBXProject "LumaCompanion" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C77244EDC9486D8C6F3D4B0A;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				58FF9E393E1BE37FFE68E0E4 /* XCLocalSwiftPackageReference "../luma-core/ios/LumaCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7F420A6D51223F7FE1953BF7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				74FBFEDE677E821B8CAE7272 /* LumaCompanion */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		ADF8E5D419A2AA035B1FD928 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				898A9F32CD2104B8E9D04943 /* CaptureStore.swift in Sources */,
+				6B3814D4DE59FAF19F16F74D /* CaptureView.swift in Sources */,
+				F41F979ABD6E5997DF1D2CFA /* DeviceView.swift in Sources */,
+				70065458DCE180B06D7E5BF3 /* FileApiClient.swift in Sources */,
+				490DB982E1D941A5E883E2A4 /* GlassesLink.swift in Sources */,
+				F152DA0CEE45AC4FA617746B /* GlassesWiFi.swift in Sources */,
+				3CDC35C1D55F258016CE41B1 /* ImageDecodeCache.swift in Sources */,
+				8938905933C8FA94D41B840D /* LiveAudioPlayer.swift in Sources */,
+				AD4FCDE7BEC738BE7058D818 /* LiveScreen.swift in Sources */,
+				C898812D1140FFBE400EEF27 /* LiveStreamSession.swift in Sources */,
+				CD3C908D8E8FC2E8CF683B36 /* LumaCompanionApp.swift in Sources */,
+				763C3B2E9B5C3E24CF8B3260 /* MemoriesScreen.swift in Sources */,
+				5D0914815DB6E1C55DEA0393 /* SwarmLink.swift in Sources */,
+				3B4A46828DF7DA9A5A089962 /* SwipeableCaptureCard.swift in Sources */,
+				4706C942C25F87FAE6928A6F /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		80E1980D5A0432AFE6D9BC90 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../luma-core/ios/lib/ios-arm64";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../luma-core/ios/lib/ios-arm64-sim";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lluma_core";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		843D0B1462512CA1BACD481C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../luma-core/ios/lib/ios-arm64";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../luma-core/ios/lib/ios-arm64-sim";
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-lluma_core";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		8FE4691D8DE023D6EA0718F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LumaCompanion/LumaCompanion.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 2TTT5WBW7Y;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LumaCompanion/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = luma.core.companion;
+				PRODUCT_NAME = LumaCompanion;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		DC2E05EE5711EFBF4AC9D779 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LumaCompanion/LumaCompanion.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 2TTT5WBW7Y;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LumaCompanion/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = luma.core.companion;
+				PRODUCT_NAME = LumaCompanion;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9A889D52C233F92009BFA47B /* Build configuration list for PBXProject "LumaCompanion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80E1980D5A0432AFE6D9BC90 /* Debug */,
+				843D0B1462512CA1BACD481C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CD2F32D955E725C51F2746AB /* Build configuration list for PBXNativeTarget "LumaCompanion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8FE4691D8DE023D6EA0718F0 /* Debug */,
+				DC2E05EE5711EFBF4AC9D779 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		58FF9E393E1BE37FFE68E0E4 /* XCLocalSwiftPackageReference "../luma-core/ios/LumaCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../luma-core/ios/LumaCore";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9AAB808D928F79B53999847C /* LumaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LumaCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BAFFB31D699997EE1FC699BE /* Project object */;
+}
