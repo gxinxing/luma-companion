@@ -49,6 +49,16 @@ struct LiveScreen: View {
                                     .padding(.horizontal, 24)
                             }
                         }
+                        if let hint = session.joinHint {
+                            Text(hint)
+                                .font(.footnote)
+                                .foregroundStyle(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 28)
+                                .padding(.vertical, 10)
+                                .background(.black.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
+                                .padding(.top, 8)
+                        }
                         if session.isStreaming {
                             VStack {
                                 Spacer()

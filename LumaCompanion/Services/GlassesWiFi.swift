@@ -169,6 +169,30 @@ enum GlassesWiFi {
         throw WiFiError.unreachable(host: host, port: port, seconds: Int(budget))
     }
 
+    /// 快速探测版：15 秒窗口。
+    /// 用于"之前已手动加入过、iOS 记住了网络"的常见场景——之前连过的话秒级自动关联；
+    /// 从未连过则 15 秒内必然探测不到，快速失败让调用方展示手动加入引导，
+    /// 而不是让用户干等 75 秒。
+    @discardableResult
+    static func waitForHostQuick(
+        port: UInt16,
+        onProgress: @MainActor (Int) -> Void = { _ in }
+    ) async throws -> String {
+        let host = glassesWifiHost()
+        let budget: TimeInterval = 15
+        let deadline = Date().addingTimeInterval(budget)
+        var elapsed = 0
+
+        while Date() < deadline {
+            try Task.checkCancellation()
+            if await probe(host: host, port: port, timeout: 2) { return host }
+            elapsed += 1
+            await onProgress(elapsed)
+            try? await Task.sleep(for: .seconds(1))
+        }
+        throw WiFiError.unreachable(host: host, port: port, seconds: Int(budget))
+    }
+
     /// One TCP connect attempt, with its own timeout. `NWConnection` reports both success
     /// and failure asynchronously and can report neither, so the continuation is guarded by
     /// a resume-once box and a hard deadline.
