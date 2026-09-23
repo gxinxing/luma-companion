@@ -91,7 +91,7 @@ final class LiveStreamSession: ObservableObject {
     @Published private(set) var dimensions: CMVideoDimensions?
     @Published private(set) var audioState = "not requested"
     @Published private(set) var finished = false
-    /// 与记忆页一样：首次使用时展示眼镜 WiFi 的 SSID + 密码，引导用户手动加入。
+    /// Free-team builds show the manual join instructions; paid-team builds keep this nil.
     @Published private(set) var joinHint: String?
 
     /// Sample buffers for the display layer. The view subscribes; nothing else does.
@@ -197,19 +197,16 @@ final class LiveStreamSession: ObservableObject {
             status = "\(ssid) — settling \(glassesTimingSsidSettleMs()) ms"
             try await Task.sleep(for: GlassesWiFi.ssidSettle)
             status = "joining \(ssid)…"
+            joinHint = GlassesWiFi.manualJoinHint(ssid: ssid)
             try await GlassesWiFi.join(ssid: ssid)
 
-            // 先用 15 秒快速探测：之前手动加入过的话 iOS 会记住网络，秒级自动关联。
-            // 从未连过则快速失败，展示手动加入引导而非干等 75 秒。
-            joinHint = "首次使用请到 iPhone「设置▸Wi-Fi」\n手动加入眼镜网络「\(ssid)」\n密码：\(glassesWifiPassphrase())"
             let host: String
             do {
                 host = try await GlassesWiFi.waitForHostQuick(port: 554) { [weak self] seconds in
                     self?.status = "joined \(ssid) — waiting for the RTSP server (\(seconds)s)"
                 }
             } catch {
-                // 快速探测失败，再给一次长窗口（用户可能正在手动加入中）
-                status = "等待手动加入眼镜网络…"
+                status = GlassesWiFi.requiresManualJoin ? "等待手动加入眼镜网络…" : "等待眼镜网络…"
                 host = try await GlassesWiFi.waitForHost(port: 554) { [weak self] seconds in
                     self?.status = "joined \(ssid) — waiting for the RTSP server (\(seconds)s)"
                 }

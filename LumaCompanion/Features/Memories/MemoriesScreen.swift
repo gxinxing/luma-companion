@@ -48,8 +48,7 @@ final class MemoriesModel: ObservableObject {
     @Published private(set) var busyItem: String?
     @Published private(set) var savedFiles: [URL] = []
     @Published private(set) var finished = false
-    /// 手动加入热点的引导文案。免费签名没有 Hotspot 权限，程序化加入不可用——
-    /// 首次需要用户到 设置▸Wi-Fi 手动加入（SSID+密码来自 0x25 推送与 crate）。
+    /// Free-team builds show the manual join instructions; paid-team builds keep this nil.
     @Published private(set) var joinHint: String?
     /// 本地相册模式：眼镜 WiFi 不可用时，展示拍摄页拍到的本地照片。
     /// 这是观众体验的保底——不让他们看到一个空白的"失败"页。
@@ -138,20 +137,14 @@ final class MemoriesModel: ObservableObject {
             try await Task.sleep(for: GlassesWiFi.ssidSettle)
 
             step = .joining
-            // 免费个人团队没有 Hotspot 权限：join() 会静默失败，真正判据是下面的
-            // waitForHost TCP 探测。给用户展示 SSID+密码引导手动加入；手动加入一次
-            // 后 iOS 会记住该网络，之后热点一起来就自动关联，无需再引导。
-            joinHint = "首次使用请到 iPhone「设置▸Wi-Fi」\n手动加入眼镜网络「\(ssid)」\n密码：\(glassesWifiPassphrase())"
+            joinHint = GlassesWiFi.manualJoinHint(ssid: ssid)
             try await GlassesWiFi.join(ssid: ssid)
-            // 先用 15 秒快速探测：之前手动加入过的话 iOS 会记住网络，秒级自动关联。
-            // 从未连过则快速失败，展示手动加入引导而非干等 75 秒。
             do {
                 _ = try await GlassesWiFi.waitForHostQuick(port: Self.httpPort) { [weak self] seconds in
                     self?.status = "等待接入眼镜网络（\(seconds)s）— 加入后自动继续"
                 }
             } catch {
-                // 快速探测失败，再给一次长窗口（用户可能正在手动加入中）
-                status = "等待手动加入眼镜网络…"
+                status = GlassesWiFi.requiresManualJoin ? "等待手动加入眼镜网络…" : "等待眼镜网络…"
                 _ = try await GlassesWiFi.waitForHost(port: Self.httpPort) { [weak self] seconds in
                     self?.status = "等待接入眼镜网络（\(seconds)s）— 加入后自动继续"
                 }
@@ -304,6 +297,11 @@ final class MemoriesModel: ObservableObject {
     func resetIfNeeded() {
         guard finished else { return }
         reset()
+    }
+
+    func retryGlassesGallery() {
+        reset()
+        start()
     }
 }
 
@@ -536,9 +534,7 @@ struct MemoriesScreen: View {
 
             // 重试连接眼镜
             Button("重试连接眼镜相册") {
-                model.localMode = false
-                model.reset()
-                model.start()
+                model.retryGlassesGallery()
             }
             .font(.subheadline)
             .padding(.top, 24)

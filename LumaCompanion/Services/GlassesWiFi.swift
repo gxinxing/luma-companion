@@ -16,11 +16,9 @@
 //      glassesTimingSsidSettleMs()      how long to wait AFTER the SSID before joining
 //
 //  iOS has a single Wi-Fi radio and no Wi-Fi Direct, so joining the glasses means
-//  leaving the user's network for the duration. `joinOnce` is deliberately false:
-//  free-team builds cannot apply the configuration at all, so the user joins manually
-//  in Settings once and iOS must remember the network for every later session; every
-//  caller still removes the configuration on the way out, so the phone snaps back to
-//  normal Wi-Fi as soon as the screen is dismissed.
+//  leaving the user's network for the duration. Paid-team builds apply the configuration;
+//  free-team builds omit HOTSPOT_CONFIGURATION and guide the user through Settings. Every
+//  caller removes the configuration on exit so the phone returns to its normal network.
 //
 
 import Foundation
@@ -44,7 +42,10 @@ enum GlassesWiFi {
             case let .joinFailed(message):
                 return "加入眼镜 Wi-Fi 失败：\(message)"
             case let .unreachable(host, port, seconds):
-                return "已在眼镜网络内，但 \(host):\(port) 在 \(seconds)s 内无响应。请到 设置▸Wi-Fi 手动加入眼镜网络后重试。"
+                let action = GlassesWiFi.requiresManualJoin
+                    ? "请到 设置▸Wi-Fi 手动加入眼镜网络后重试。"
+                    : "请确认眼镜热点已开启后重试。"
+                return "眼镜网络 \(host):\(port) 在 \(seconds)s 内无响应。\(action)"
             }
         }
     }
@@ -60,6 +61,17 @@ enum GlassesWiFi {
     /// The whole budget for "iOS accepted the config" plus "the server answers". iOS
     /// routinely takes twenty seconds to join a hotspot with no internet on it.
     static var joinTimeout: TimeInterval { Double(glassesTimingWifiJoinTimeoutMs()) / 1000 }
+
+    #if HOTSPOT_CONFIGURATION
+    static let requiresManualJoin = false
+    #else
+    static let requiresManualJoin = true
+    #endif
+
+    static func manualJoinHint(ssid: String) -> String? {
+        guard requiresManualJoin else { return nil }
+        return "首次使用请到 iPhone「设置▸Wi-Fi」\n手动加入眼镜网络「\(ssid)」\n密码：\(glassesWifiPassphrase())"
+    }
 
     // MARK: - URLSession
 
@@ -79,22 +91,13 @@ enum GlassesWiFi {
 
     // MARK: - Join and leave
 
-    /// Try to apply one hotspot configuration for `ssid`.
-    ///
-    /// 免费个人团队（Free Personal Team）**不支持** Hotspot Configuration 权限——
-    /// `apply` 会直接报 entitlement 错误。因此本函数**吞掉** apply 的失败：真正的
-    /// "加入成功"判据是 `waitForHost` 的 TCP 探测——用户在 设置▸Wi-Fi 手动加入眼镜
-    /// 网络后探测即通过，且手动加入会被 iOS 记住，之后的会话自动关联。
-    ///
-    /// `hidden` is set because a BLE-announced SoftAP frequently does not beacon its SSID,
-    /// and iOS fails a passive scan for one it cannot see — instantly, and with a success
-    /// callback, which is the confusing part. (Paid-team builds keep using this path.)
+    /// Paid-team builds apply a persistent hotspot configuration. Free-team builds compile
+    /// the same flow without HOTSPOT_CONFIGURATION and wait for the user's manual join.
     static func join(ssid: String) async throws {
         let ssid = ssid.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !ssid.isEmpty else { throw WiFiError.noSSID }
 
-        // The passphrase is not on the wire — the SSID frame carries only the name — so it
-        // lives in the crate beside the frame that needs it rather than as a literal here.
+        #if HOTSPOT_CONFIGURATION
         let configuration = NEHotspotConfiguration(
             ssid: ssid,
             passphrase: glassesWifiPassphrase(),
@@ -102,12 +105,8 @@ enum GlassesWiFi {
         )
         configuration.joinOnce = false
         configuration.hidden = true
-
-        do {
-            try await apply(configuration)
-        } catch {
-            // 吞掉：交给 waitForHost 判定。手动加入的引导（SSID+密码）由调用方展示。
-        }
+        try await apply(configuration)
+        #endif
     }
 
     /// Remove the configuration so iOS returns the phone to its normal network. Safe to

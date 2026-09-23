@@ -196,7 +196,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					74FBFEDE677E821B8CAE7272 = {
-						DevelopmentTeam = 2TTT5WBW7Y;
+						DevelopmentTeam = YZYR3VWPA3;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -389,18 +389,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = LumaCompanion/LumaCompanion.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 2TTT5WBW7Y;
+				DEVELOPMENT_TEAM = YZYR3VWPA3;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LumaCompanion/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = luma.core.companion;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rickyke.lumacompanion;
 				PRODUCT_NAME = LumaCompanion;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) HOTSPOT_CONFIGURATION";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -412,18 +413,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = LumaCompanion/LumaCompanion.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 2TTT5WBW7Y;
+				DEVELOPMENT_TEAM = YZYR3VWPA3;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LumaCompanion/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = luma.core.companion;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rickyke.lumacompanion;
 				PRODUCT_NAME = LumaCompanion;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) HOTSPOT_CONFIGURATION";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

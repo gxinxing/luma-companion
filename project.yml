@@ -31,15 +31,14 @@ targets:
       - LumaCompanion
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: luma.core.companion
+        PRODUCT_BUNDLE_IDENTIFIER: com.rickyke.lumacompanion
         PRODUCT_NAME: "LumaCompanion"
-        # Free personal team (gxinxing2014@gmail.com) — the real team ID read from
-        # Xcode's fresh account session (7X24M4QUV2 was a ghost from the broken old session).
-        DEVELOPMENT_TEAM: 2TTT5WBW7Y
+        DEVELOPMENT_TEAM: YZYR3VWPA3
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) HOTSPOT_CONFIGURATION
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: LumaCompanion/Info.plist
-        # Join the glasses' own access point for the gallery and live view. Must also be
-        # enabled on the App ID in the developer portal, or device signing fails.
+        # Keep HOTSPOT_CONFIGURATION and the entitlement in sync. Free personal teams
+        # must remove both; paid-team builds then apply the configuration automatically.
         CODE_SIGN_ENTITLEMENTS: LumaCompanion/LumaCompanion.entitlements
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
