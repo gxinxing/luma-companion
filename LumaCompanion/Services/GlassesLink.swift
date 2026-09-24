@@ -65,6 +65,8 @@ final class GlassesLink: NSObject, ObservableObject {
     @Published private(set) var lastCapture: Data?
     @Published private(set) var lastCaptureAt: Date?
     @Published private(set) var isTransferringCapture = false
+    @Published private(set) var captureFailure: String?
+    private var captureTimeoutTask: Task<Void, Never>?
 
     /// Every parsed control event, as it arrives. The Live and Memories flows subscribe
     /// rather than reach for a peripheral, which keeps this the single CoreBluetooth owner.
@@ -217,7 +219,24 @@ final class GlassesLink: NSObject, ObservableObject {
     /// Take a photo. `forAi: true` (the default) has the glasses push the small JPEG back
     /// over BLE — it lands in `lastCapture`. The full-resolution file goes to the on-glasses
     /// gallery and is downloadable from the Memories tab.
-    func takePhoto(forAi: Bool = true) { send("takePhoto", glassesTakePhoto(forAi: forAi)) }
+    func takePhoto(forAi: Bool = true) {
+        guard phase.isConnected, writeCharacteristic != nil else {
+            captureFailure = "眼镜尚未连接，无法拍摄"
+            return
+        }
+        guard !isTransferringCapture else { return }
+        captureFailure = nil
+        isTransferringCapture = true
+        send("takePhoto", glassesTakePhoto(forAi: forAi))
+        captureTimeoutTask?.cancel()
+        captureTimeoutTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(15))
+            guard !Task.isCancelled, let self, self.isTransferringCapture else { return }
+            self.isTransferringCapture = false
+            self.captureFailure = "眼镜未在 15 秒内回传照片，请重试"
+            self.captureTimeoutTask = nil
+        }
+    }
     func interruptVoice() { send("interruptVoice", glassesInterruptVoice()) }
 
     // MARK: - What the Wi-Fi flows need
@@ -355,6 +374,9 @@ final class GlassesLink: NSObject, ObservableObject {
     }
 
     private func resetConnectionState() {
+        captureTimeoutTask?.cancel()
+        captureTimeoutTask = nil
+        if isTransferringCapture { captureFailure = "连接中断，照片没有回传" }
         peripheral = nil
         writeCharacteristic = nil
         resetProtocolState()
@@ -442,6 +464,8 @@ final class GlassesLink: NSObject, ObservableObject {
         case .started:
             isTransferringCapture = true
         case let .completed(_, kind, data):
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             // `take_photo(ai)` sends the small preview over BLE; the kind is the honest
             // record of what this transfer actually was. Only image-shaped kinds become
             // `lastCapture` — a voice note or firmware chunk must not clobber the photo.
@@ -451,11 +475,14 @@ final class GlassesLink: NSObject, ObservableObject {
                 lastCaptureAt = Date()
                 CaptureStore.save(data, at: lastCaptureAt ?? Date())
             default:
-                break
+                captureFailure = "收到的文件不是照片"
             }
             isTransferringCapture = false
         case .aborted, .desynced:
+            captureTimeoutTask?.cancel()
+            captureTimeoutTask = nil
             isTransferringCapture = false
+            captureFailure = "照片传输中断，请重试"
         }
     }
 

@@ -1,116 +1,284 @@
-//
-//  DeviceView.swift
-//  设备页：电量、固件、身份、设置快照、断开。
-//
-//  只读：V1 不做设置写入（binding 也还没有 setter），把眼镜当前的十条设置原样展示。
-//
-
 import SwiftUI
-// 设置快照里的枚举（`FfiGlassesOrientation`）要用中文在原页翻译出来，就得点名它的类型。
 import LumaCore
 
+/// 眼镜的感知入口与蜂群运行证据。页面只展示中台真实快照，不合成蜂的动作。
 struct DeviceView: View {
     @EnvironmentObject private var link: GlassesLink
     @AppStorage("swarm.baseURL") private var swarmURL: String = SwarmLink.defaultBaseURL
     @AppStorage("swarm.operatorToken") private var swarmToken: String = ""
+    @State private var snapshot: SwarmLink.SwarmSnapshot?
+    @State private var snapshotError: String?
     @State private var swarmStatus: String?
-    /// 上传中防重入：连点会并发打多次 /api/stimuli。
     @State private var uploading = false
+    @State private var showSettings = false
+    @State private var refreshTask: Task<Void, Never>?
 
     var body: some View {
         NavigationStack {
-            List {
-                connectionSection
-                firmwareSection
-                settingsSection
-                swarmSection
-            }
-            .scrollContentBackground(.hidden)
-            .background(Color.black.ignoresSafeArea())
-            .navigationTitle("设备")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-
-    // MARK: - Sections
-
-    private var connectionSection: some View {
-        Section {
-            row("状态") {
-                switch link.phase {
-                case .connected: Text("已连接").foregroundStyle(.green)
-                case .scanning: Text("正在寻找眼镜…")
-                case .connecting, .discovering: Text("正在连接…")
-                case .idle: Text("未连接")
-                case .bluetoothOff(let reason): Text("蓝牙不可用（\(reason)）")
-                case .failed(let reason): Text("失败：\(reason)").foregroundStyle(.lumaRecording)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    header
+                    journeyCard
+                    runCard
+                    evidenceGrid
+                    perceptionCard
+                    uploadCard
+                    deviceCard
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 28)
+                .padding(.bottom, 130)
             }
-            if let name = link.deviceName { row("设备") { Text(name) } }
-            row("眼镜电量") {
-                if let battery = link.batteryPercent {
-                    Text("\(battery)%\(link.charging ? " · 充电中" : "")")
-                        .monospacedDigit()
-                } else { Text("—") }
+            .background(Color.lumaBackground.ignoresSafeArea())
+            .toolbar(.hidden, for: .navigationBar)
+            .refreshable { await refresh() }
+        }
+        .onAppear { startRefresh() }
+        .onDisappear { refreshTask?.cancel(); refreshTask = nil }
+    }
+
+    private var header: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 7) {
+                Text("LUMA / SWARM")
+                    .font(.caption2.weight(.semibold))
+                    .tracking(2)
+                    .foregroundStyle(.lumaAccent)
+                Text("让感知进入蜂群")
+                    .font(.system(size: 31, weight: .bold, design: .rounded))
+                Text("从眼镜的一帧，到 Jev 的判断，再到音乐的变化。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            if link.phase.isConnected {
-                Button("断开眼镜", role: .destructive) { link.disconnect() }
+            Spacer(minLength: 8)
+            Button { Task { await refresh() } } label: {
+                Image(systemName: "arrow.clockwise")
+                    .frame(width: 42, height: 42)
+                    .background(Color.lumaSurface, in: Circle())
+            }
+            .accessibilityLabel("刷新蜂群状态")
+        }
+    }
+
+    private var journeyCard: some View {
+        HStack(spacing: 0) {
+            journeyStep("眼镜", icon: "eyeglasses")
+            journeyArrow
+            journeyStep("感知", icon: "viewfinder")
+            journeyArrow
+            journeyStep("Jev", icon: "sparkle")
+            journeyArrow
+            journeyStep("音乐", icon: "music.note")
+        }
+        .padding(.vertical, 18)
+        .padding(.horizontal, 10)
+        .background(Color.lumaSurface, in: RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.lumaStroke, lineWidth: 1))
+    }
+
+    private func journeyStep(_ title: String, icon: String) -> some View {
+        VStack(spacing: 7) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(.lumaAccent)
+                .frame(height: 24)
+            Text(title).font(.caption2.weight(.medium))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var journeyArrow: some View {
+        Image(systemName: "chevron.right")
+            .font(.system(size: 8, weight: .bold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var runCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text("当前演出").font(.headline)
+                Spacer()
+                Text(snapshot?.status == "running" ? "运行中" : "未确认")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(snapshot?.status == "running" ? .lumaAccent : .secondary)
+            }
+            if let snapshot {
+                line("Jev 模型", snapshot.apiConfigured && snapshot.aiStatus == "ready" ? "已就绪" : "未就绪 / 未确认")
+                line("设备输入", snapshot.deviceStatus == "not_connected" ? "尚未进入这场演出" : "已接入")
+                if let stimulus = snapshot.lastStimulusId {
+                    line("最近刺激", String(stimulus.prefix(12)) + "…")
+                }
             } else {
-                Button("重新连接") { link.start() }
+                Text(snapshotError ?? "正在读取运行快照…")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-        } header: {
-            Text("连接")
+        }
+        .padding(20)
+        .background(Color.lumaSurface, in: RoundedRectangle(cornerRadius: 22))
+    }
+
+    private var evidenceGrid: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("本轮证据").font(.headline)
+                Spacer()
+                Text("来自中台账本")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            HStack(spacing: 10) {
+                metric("Jev 调用", snapshot?.modelCalls)
+                metric("蜂群判断", snapshot?.decisions)
+            }
+            HStack(spacing: 10) {
+                metric("已应用蜂", snapshot?.appliedBees)
+                metric("音乐痕迹", snapshot?.traceCount)
+            }
+            Text("未采集的指标显示 —；数字不代表艺术质量或自主进化已完成。")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
     }
 
-    private var firmwareSection: some View {
-        Section {
-            row("固件") { Text(link.firmware ?? "—") }
-            row("项目 / 客户") { Text(link.project ?? "—") }
-            row("设置快照") {
-                Text(link.settingsComplete ? "已同步" : link.phase.isConnected ? "同步中…" : "—")
-                    .foregroundStyle(link.settingsComplete ? .green : .secondary)
-            }
-        } header: {
-            Text("眼镜信息")
-        } footer: {
-            Text("连接后自动读取；设置快照来自握手时的十帧设置广播。")
+    private func metric(_ title: String, _ value: Int?) -> some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(value.map(String.init) ?? "—")
+                .font(.system(size: 29, weight: .semibold, design: .rounded))
+                .monospacedDigit()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color.lumaSurface, in: RoundedRectangle(cornerRadius: 18))
     }
 
-    private var swarmSection: some View {
-        Section {
+    private var perceptionCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("感知正在发生什么").font(.headline)
+            line("眼镜", link.phase.isConnected ? "蓝牙已连接" : "等待连接")
+            line("拍摄", link.lastCaptureAt.map { "最近 \($0.formatted(date: .omitted, time: .shortened))" } ?? "尚无照片")
+            line("进化", snapshot?.generation.map { "乐句第 \($0) 代" } ?? "未采集")
+            Text("目前拍照由人触发；持续自主采集与语音感知尚未接入。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 4)
+        }
+        .padding(20)
+        .background(Color.lumaSurface, in: RoundedRectangle(cornerRadius: 22))
+    }
+
+    private var uploadCard: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            Text("把这一帧送入蜂群").font(.headline)
+            Text("使用最近一张眼镜照片；上报成功后可在上方看到设备刺激。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             TextField("中台地址", text: $swarmURL)
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-                .font(.callout)
-            SecureField("操作员令牌（ARIA_OPERATOR_TOKEN）", text: $swarmToken)
-                .font(.callout)
-            Button {
-                uploadLatestCapture()
-            } label: {
-                if uploading {
-                    HStack {
-                        ProgressView().controlSize(.small)
-                        Text("上传中…")
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                } else {
-                    Label("上传最近一张到蜂群", systemImage: "arrow.up.circle")
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(13)
+                .background(Color.lumaBackground, in: RoundedRectangle(cornerRadius: 12))
+            SecureField("操作员令牌", text: $swarmToken)
+                .padding(13)
+                .background(Color.lumaBackground, in: RoundedRectangle(cornerRadius: 12))
+            Button { uploadLatestCapture() } label: {
+                HStack {
+                    if uploading { ProgressView().tint(.black) }
+                    else { Image(systemName: "arrow.up.right") }
+                    Text(uploading ? "正在上报…" : "上报最近一张")
+                        .frame(maxWidth: .infinity)
                 }
             }
-            .disabled(uploading || !link.phase.isConnected || link.lastCapture == nil)
-            if let swarmStatus {
-                Text(swarmStatus)
+            .buttonStyle(.borderedProminent)
+            .tint(.lumaAccent)
+            .foregroundStyle(.black)
+            .disabled(uploading || link.lastCapture == nil)
+            if link.lastCapture == nil {
+                Text("先在感知页获取一张照片")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-        } header: {
-            Text("蜂群中台")
-        } footer: {
-            Text("把眼镜拍到的画面作为 device 刺激送进演出（需要中台有运行中的场次和操作员令牌）。")
+            if let swarmStatus {
+                Text(swarmStatus)
+                    .font(.caption)
+                    .foregroundStyle(swarmStatus.hasPrefix("失败") ? .lumaRecording : .secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(20)
+        .background(Color.lumaSurface, in: RoundedRectangle(cornerRadius: 22))
+    }
+
+    private var deviceCard: some View {
+        DisclosureGroup("设备详情", isExpanded: $showSettings) {
+            VStack(spacing: 12) {
+                line("连接", connectionText)
+                line("电量", link.batteryPercent.map { "\($0)%" } ?? "—")
+                line("固件", link.firmware ?? "—")
+                line("项目 / 客户", link.project ?? "—")
+                if let states = link.switchStates {
+                    line("指示灯", Self.ledText(states.led))
+                    line("佩戴检测", Self.onOff(states.wearDetection))
+                    line("语音唤醒", Self.onOff(states.voiceCommand))
+                    line("佩戴方向", Self.orientationText(states.orientation))
+                }
+                Button(link.phase.isConnected ? "断开眼镜" : "重新连接") {
+                    if link.phase.isConnected { link.disconnect() }
+                    else { link.start() }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(link.phase.isConnected ? .lumaRecording : .lumaAccent)
+            }
+            .padding(.top, 16)
+        }
+        .font(.headline)
+        .padding(20)
+        .background(Color.lumaSurface, in: RoundedRectangle(cornerRadius: 22))
+    }
+
+    private var connectionText: String {
+        switch link.phase {
+        case .connected: link.deviceName ?? "已连接"
+        case .scanning: "正在寻找眼镜"
+        case .connecting, .discovering: "正在连接"
+        case .failed(let reason): reason
+        case .bluetoothOff(let reason): "蓝牙不可用（\(reason)）"
+        case .idle: "未连接"
+        }
+    }
+
+    private func line(_ title: String, _ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(title).foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Text(value).multilineTextAlignment(.trailing)
+        }
+        .font(.subheadline)
+    }
+
+    private func startRefresh() {
+        refreshTask?.cancel()
+        refreshTask = Task {
+            while !Task.isCancelled {
+                await refresh()
+                try? await Task.sleep(for: .seconds(8))
+            }
+        }
+    }
+
+    private func refresh() async {
+        do {
+            let latest = try await SwarmLink.fetchSnapshot(baseURL: swarmURL)
+            guard !Task.isCancelled else { return }
+            snapshot = latest
+            snapshotError = nil
+        } catch {
+            guard !Task.isCancelled else { return }
+            snapshotError = "中台暂不可达：\(error.localizedDescription)"
         }
     }
 
@@ -132,47 +300,10 @@ struct DeviceView: View {
                     capturedAt: link.lastCaptureAt ?? Date()
                 )
                 swarmStatus = message
+                await refresh()
             } catch {
                 swarmStatus = "失败：\(error.localizedDescription)"
             }
-        }
-    }
-
-    private var settingsSection: some View {
-        Section {
-            if let states = link.switchStates {
-                row("指示灯") { Text(Self.ledText(states.led)) }
-                row("单段录制时长") {
-                    Text(states.recordSeconds.map { "\($0) 秒" } ?? "…")
-                }
-                row("佩戴检测") { Text(Self.onOff(states.wearDetection)) }
-                row("语音唤醒") { Text(Self.onOff(states.voiceCommand)) }
-                // `"\($0)"` 在 LocalizedStringKey 里插的是调试描述，屏幕上显示的是
-                // `portrait` / `landscape` 这种英文 case 名 —— 中文界面里这是错别字，
-                // 编译器也就此给了废弃告警。
-                row("佩戴方向") { Text(Self.orientationText(states.orientation)) }
-                row("手势绑定") {
-                    let bound = (states.gestures.compactMap { $0 }).count
-                    Text("\(bound) / \(states.gestures.count) 个已绑定")
-                }
-            } else {
-                Text("连接后显示设置快照")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
-        } header: {
-            Text("设置（只读）")
-        }
-    }
-
-    private func row(
-        _ label: String,
-        @ViewBuilder value: () -> some View
-    ) -> some View {
-        HStack {
-            Text(label)
-            Spacer()
-            value().font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.trailing)
         }
     }
 
@@ -196,8 +327,6 @@ struct DeviceView: View {
         case .some(1): "低亮度"
         case .some(2): "高亮度"
         case .none: "…"
-        // 这里不用 `value!`：现在的 case 排布保证了非空，但只要有人改动这条 switch，
-        // 一个 `!` 就会把整个设备页变成崩溃。绑定一次，说人话一次。
         case let .some(raw): "未知 (\(raw))"
         }
     }

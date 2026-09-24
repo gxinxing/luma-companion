@@ -1,18 +1,19 @@
 # LumaCompanion — 眼镜的 iPhone 伴侣 App（V1）
 
 第一视角 AI 记录工具：打开 App 自动连上眼镜（`E06-00F7`），拍下你看见的，
-在「记忆」里查看、下载、分享、删除。工程由 [`../eyevue-audit/报告.md`](../eyevue-audit/报告.md)
+在「记忆」里查看、分享、保存、删除蓝牙回传的小图。工程由 [`../eyevue-audit/报告.md`](../eyevue-audit/报告.md)
 的逆向结论驱动 —— 那里记录了原厂 App 的结构与本 App 刻意修正的连接 UX 问题。
 
 ## 是什么
 
-- **四个 tab**：拍摄（状态+电量+大快门+最近拍摄卡片+最近 AI 预览）、实时（RTSP 取景器）、
-  记忆（眼镜相册：浏览/下载/分享/删除）、设备（电量/固件/设置快照/断开/蜂群中台上传）。
+- **三个 tab**：感知（BLE 拍摄、连接状态、最近一帧）、记忆（手机本地的 BLE 拍摄预览：查看/分享/存相册/删除）、蜂群（真实运行快照、Jev/蜂群/音乐证据、照片上报及设备详情）。
+- **主动感知的证据边界**：蜂群页读取 `/api/snapshot` 的本轮模型调用、判断、已应用蜂、音乐痕迹、乐句代际和设备来源；缺失指标显示「—」。当前拍照由人触发，持续自主采集、语音和 SECTION 9 任务层未在手机端实现。
+- **无眼镜热点**：当前导航不启动 Wi-Fi、RTSP 或眼镜文件 API。连续实时视频和眼镜内完整相册需要热点，暂不在手机动线中提供；记忆页显示的是 BLE 回传小图。
 - **最近拍摄卡片**：右滑保存到 iOS 相册（需允许「添加到相册」权限），左滑删除；触觉反馈。
 - **蜂群中台上传**：拍摄画面按 glasses-stimulus/v1 合同语义提取本机特征（32×32 下采样、
   Rec.709 亮度、HSL 色相桶、Sobel 边缘密度、8×8 aHash），强度 = 0.5·亮度 + 0.3·边缘密度 +
   0.2·饱和度（与 src/glasses-music-stimulus.mjs 的 INTENSITY_WEIGHTS 一致），POST /api/stimuli
-  送进演出（runId 自动从 /api/snapshot 发现，操作员令牌在设备页配置）。
+  送进演出（runId 自动从 /api/snapshot 发现，操作员令牌在蜂群页配置）。
   接口预检可运行 `TOKEN=<操作员令牌> ./verify-swarm.sh [中台地址]`。脚本在 2026-09-24
   对本地真实 aria-swarm 服务验证了 200 → `music.stimuli` 回查命中，也验证无运行场次时
   返回非零；它发送的是合成 HTTP 设备刺激，仍需用眼镜新拍照片做真机验收。
@@ -57,10 +58,7 @@ open LumaCompanion.xcodeproj   # Xcode 里选真机 iPhone 运行
 - **真机构建要求**：Xcode 登录 Apple ID（免费个人团队即可）；**团队 ID 是
   `2TTT5WBW7Y`**（已写入 project.yml；免费账户第一次 Run 时 Xcode 自动注册 App ID、
   创建描述文件）。
-- **眼镜 Wi-Fi 需手动加入（免费账户限制）**：免费个人团队**不支持 Hotspot
-  Configuration 权限**（已从 entitlements 移除该 key），因此「记忆」/「实时」首次
-  使用时按 App 屏幕提示到 设置▸Wi-Fi 手动加入眼镜网络（屏幕会显示 SSID+密码），
-  一次性——之后 iOS 自动关联。付费开发者账号可恢复 entitlement 走全自动流程。
+- 当前三页动线无需加入眼镜 Wi-Fi。场馆笔记本上的蜂群中台若使用局域网地址，手机仍需接入与笔记本相同的常规网络。
 - 首次运行 iOS 会弹蓝牙与本地网络权限。
 - 与原厂 EyeVue 共用一条 BLE 连接：测试前把 EyeVue 的连接断开（或蓝牙关掉）。
 
@@ -68,23 +66,28 @@ open LumaCompanion.xcodeproj   # Xcode 里选真机 iPhone 运行
 
 ```
 LumaCompanion/
-├── LumaCompanionApp.swift          # 入口 + 四 tab
+├── LumaCompanionApp.swift          # 入口 + 感知 / 记忆 / 蜂群
 ├── Services/
 │   ├── GlassesLink.swift           # 重写：名字回退发现 + Phase 状态机 + 自动重连
 │   │                                #   + AA15 文件流（AI 小图 → lastCapture）
-│   ├── GlassesWiFi.swift           # ↓ 以下四个与 LumaDemo 逐字节一致（已验证的管线）
+│   ├── GlassesWiFi.swift           # 历史热点实现，当前导航不调用
 │   ├── FileApiClient.swift
 │   ├── LiveStreamSession.swift
 │   └── LiveAudioPlayer.swift
 ├── Features/
 │   ├── Capture/CaptureView.swift   # 拍摄：取景器 + 快门 + StatusPill
-│   ├── Live/LiveScreen.swift       # 实时：复用 demo 视频层，去掉教学清单
-│   ├── Memories/MemoriesScreen.swift # 记忆：分组网格 + 查看器 + 下载/分享/删除
-│   └── Device/DeviceView.swift     # 设备：只读信息 + 断开
+│   ├── Live/LiveScreen.swift       # 历史实时实现，当前导航不调用
+│   ├── Memories/LocalMemoriesScreen.swift # 当前记忆页：本地 BLE 小图
+│   ├── Memories/MemoriesScreen.swift # 历史眼镜热点相册，当前导航不调用
+│   └── Device/DeviceView.swift     # 蜂群：真实快照 + 上报 + 设备详情
 └── Support/Theme.swift             # 深色 first-person recorder 主题 + StatusPill
 ```
 
 ## 验证状态（诚实边界）
+
+- 2026-09-24 09:35：三页 UI 已按眼镜→感知→Jev→音乐的因果顺序重排；蜂群页在模拟器中成功读取生产快照并显示真实本轮指标（当时 modelCalls=28、decisions=28、appliedBees=6、music.traces=2、device 未接入）。模拟器人工检查感知、记忆空态、蜂群首屏和中台输入区，底部输入可滚动到可操作区域；主屏图标已显示。拍照命令新增 15 秒回传超时和明确失败状态。图标为深色底的简洁 L 字标，Xcode 资源目录 `Assets.xcassets/AppIcon.appiconset` 已接入。Simulator 与签名设备构建均 **BUILD SUCCEEDED**；签名包为 `/tmp/lumacompanion-dd-signed/Build/Products/Debug-iphoneos/LumaCompanion.app`（版本 3、Team ID `2TTT5WBW7Y`、AppIcon 已入 Info.plist）。iPhone 在 `devicectl` 中仍是 unavailable，未装机或真机联调。
+
+- 2026-09-24 09:19：按用户「不要连热点」要求，当前导航改为拍摄/本地记忆/设备三页；记忆页直接读取 `CaptureStore`，不触发 `glassesOpenWifi`，支持刷新、查看、分享、保存系统相册和删除。`xcodegen` 已重跑；iOS device 和 Simulator 两套目标无签名 **BUILD SUCCEEDED**；模拟器已安装启动，人工点击「记忆」确认空态与三 tab 正常显示。签名设备构建也 **BUILD SUCCEEDED**，可装包位于 `/tmp/lumacompanion-dd-signed/Build/Products/Debug-iphoneos/LumaCompanion.app`，版本号 2、Team ID `2TTT5WBW7Y`、ATS 本地网络许可均核实。iPhone 当前仍为 unavailable，真机安装、BLE 拍照、相册保存与上传尚待验收。
 
 - 2026-09-24 09:02：重新运行 `xcodegen` 与无签名 iOS device 目标构建；修复记忆页本地相册兜底的 `private(set)` 写入和图片视图参数编译错误后，`xcodebuild -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build` **BUILD SUCCEEDED**（包含 ATS 配置、SPM 本地包解析与链接）。iPhone 15 Pro 目前在 `devicectl` 中为 unavailable；本轮尚未签名、装机或做眼镜端到端验证。构建日志：`/tmp/lumacompanion-build-20260924.log`。
 
@@ -104,11 +107,11 @@ LumaCompanion/
   构建验证）。眼镜下次开机后按 HANDOFF §5 清单实测：自动连接、拍照回传、卡片滑动、
   实时复播、记忆热点流程、断连重连窗口。
 - 已知简化：下载暂无进度条（文件小、走眼镜热点）。
-- 本目录不是 git 仓库（工作区约定：`luma-core` 才是上游 SDK 仓库）。
+- 本目录是独立 Git 仓库 `gxinxing/luma-companion`；`luma-core` 是旁边的 SDK 仓库。
 
 ## 给下一个 agent
 
-- **先读 [`HANDOFF.md`](./HANDOFF.md)** —— 最新状态、重建命令、待办清单、令牌排查结论、已踩坑清单都在那里。
+- **先读 [`../PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) 和本 README 最新验证条目**。`HANDOFF.md` 保存此前四页/热点方案的历史交接，不能当成当前导航状态。
 - 改连接行为 → `Services/GlassesLink.swift`（读文件头注释，那里有本机广播怪癖的来龙去脉）。
 - 改 UI → `Features/`，状态一律从 `link.phase` 派生，别自己另存一份连接状态。
 - 协议疑问 → `../luma-core/PROTOCOL.md`（字节级）与 `docs/GUIDE.md`（流程级）。

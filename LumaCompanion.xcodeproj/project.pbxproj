@@ -12,6 +12,7 @@
 		4706C942C25F87FAE6928A6F /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D9B576892E60D830EAD137 /* Theme.swift */; };
 		490DB982E1D941A5E883E2A4 /* GlassesLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D852C4D1C1799ED51C71218 /* GlassesLink.swift */; };
 		5D0914815DB6E1C55DEA0393 /* SwarmLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA6EF25485260E568D3D472 /* SwarmLink.swift */; };
+		5F95F822B08FA7DA89B54692 /* LocalMemoriesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFCABF89FE1625E63E812F89 /* LocalMemoriesScreen.swift */; };
 		602F81698A890A36BB477D9A /* LumaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9AAB808D928F79B53999847C /* LumaCore */; };
 		6B3814D4DE59FAF19F16F74D /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549B0AECDB8BCEA0C1FFD2ED /* CaptureView.swift */; };
 		70065458DCE180B06D7E5BF3 /* FileApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 423929219E12C25BBC21B381 /* FileApiClient.swift */; };
@@ -21,6 +22,7 @@
 		AD4FCDE7BEC738BE7058D818 /* LiveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23422479BBF371DA72FD3A5 /* LiveScreen.swift */; };
 		C898812D1140FFBE400EEF27 /* LiveStreamSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04CAC15F7B77AA01A1298AE /* LiveStreamSession.swift */; };
 		CD3C908D8E8FC2E8CF683B36 /* LumaCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21E45F4070D500B29F4AA98 /* LumaCompanionApp.swift */; };
+		DB093B8707775FE11F8D5591 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B3D72ACEA84FBC704A8C1EA /* Assets.xcassets */; };
 		F152DA0CEE45AC4FA617746B /* GlassesWiFi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A65BFE4F14B9400E16639B /* GlassesWiFi.swift */; };
 		F41F979ABD6E5997DF1D2CFA /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155A55E0B1A7CCF2AF810332 /* DeviceView.swift */; };
 /* End PBXBuildFile section */
@@ -39,9 +41,11 @@
 		549B0AECDB8BCEA0C1FFD2ED /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		5DA6EF25485260E568D3D472 /* SwarmLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwarmLink.swift; sourceTree = "<group>"; };
 		71ACDD5E57026FAD9A23BB0A /* CaptureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureStore.swift; sourceTree = "<group>"; };
+		8B3D72ACEA84FBC704A8C1EA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		949DEE77EFF412E84AEA9651 /* LumaCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LumaCore; path = "../luma-core/ios/LumaCore"; sourceTree = SOURCE_ROOT; };
 		B21E45F4070D500B29F4AA98 /* LumaCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumaCompanionApp.swift; sourceTree = "<group>"; };
 		C23422479BBF371DA72FD3A5 /* LiveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveScreen.swift; sourceTree = "<group>"; };
+		CFCABF89FE1625E63E812F89 /* LocalMemoriesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMemoriesScreen.swift; sourceTree = "<group>"; };
 		E0B6531936CB5D3177BD4155 /* LiveAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAudioPlayer.swift; sourceTree = "<group>"; };
 		E0D9B576892E60D830EAD137 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		F04CAC15F7B77AA01A1298AE /* LiveStreamSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveStreamSession.swift; sourceTree = "<group>"; };
@@ -134,6 +138,7 @@
 		DA0B9FD441C1A8B3F5C3DCDF /* Memories */ = {
 			isa = PBXGroup;
 			children = (
+				CFCABF89FE1625E63E812F89 /* LocalMemoriesScreen.swift */,
 				189A7502E2E4A531E0D54D55 /* MemoriesScreen.swift */,
 			);
 			path = Memories;
@@ -142,6 +147,7 @@
 		E5256332ED67B6457BDE1D7B /* LumaCompanion */ = {
 			isa = PBXGroup;
 			children = (
+				8B3D72ACEA84FBC704A8C1EA /* Assets.xcassets */,
 				4B6339784B12B3DC44ED3CF7 /* Info.plist */,
 				369FF517B91422DEEB00ED43 /* LumaCompanion.entitlements */,
 				B21E45F4070D500B29F4AA98 /* LumaCompanionApp.swift */,
@@ -172,6 +178,7 @@
 			buildConfigurationList = CD2F32D955E725C51F2746AB /* Build configuration list for PBXNativeTarget "LumaCompanion" */;
 			buildPhases = (
 				ADF8E5D419A2AA035B1FD928 /* Sources */,
+				874C48AABEB44EB582B6BE69 /* Resources */,
 				886F1B2A73026E6091823BE5 /* Frameworks */,
 			);
 			buildRules = (
@@ -223,6 +230,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		874C48AABEB44EB582B6BE69 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB093B8707775FE11F8D5591 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		ADF8E5D419A2AA035B1FD928 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -238,6 +256,7 @@
 				8938905933C8FA94D41B840D /* LiveAudioPlayer.swift in Sources */,
 				AD4FCDE7BEC738BE7058D818 /* LiveScreen.swift in Sources */,
 				C898812D1140FFBE400EEF27 /* LiveStreamSession.swift in Sources */,
+				5F95F822B08FA7DA89B54692 /* LocalMemoriesScreen.swift in Sources */,
 				CD3C908D8E8FC2E8CF683B36 /* LumaCompanionApp.swift in Sources */,
 				763C3B2E9B5C3E24CF8B3260 /* MemoriesScreen.swift in Sources */,
 				5D0914815DB6E1C55DEA0393 /* SwarmLink.swift in Sources */,
@@ -284,7 +303,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -354,7 +373,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

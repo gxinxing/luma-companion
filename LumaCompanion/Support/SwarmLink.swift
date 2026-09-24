@@ -183,6 +183,54 @@ enum SwarmLink {
         var message: String
     }
 
+    struct SwarmSnapshot {
+        let runId: String?
+        let status: String
+        let aiStatus: String
+        let apiConfigured: Bool
+        let modelCalls: Int?
+        let decisions: Int?
+        let appliedBees: Int?
+        let noChange: Int?
+        let traceCount: Int?
+        let generation: Int?
+        let deviceStatus: String
+        let lastStimulusId: String?
+    }
+
+    /// 只读运行快照。数字完全来自中台账本；缺失保持 nil，界面显示「未采集」。
+    static func fetchSnapshot(baseURL rawBaseURL: String) async throws -> SwarmSnapshot {
+        guard let url = URL(string: normalizedBaseURL(rawBaseURL) + "/api/snapshot") else {
+            throw SwarmError.badURL
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 10
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200,
+              let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw SwarmError.server("无法读取蜂群运行快照")
+        }
+        let ai = root["ai"] as? [String: Any] ?? [:]
+        let metrics = root["metrics"] as? [String: Any] ?? [:]
+        let music = root["music"] as? [String: Any] ?? [:]
+        let device = root["device"] as? [String: Any] ?? [:]
+        func count(_ key: String) -> Int? { (metrics[key] as? NSNumber)?.intValue }
+        return SwarmSnapshot(
+            runId: root["runId"] as? String,
+            status: root["status"] as? String ?? "unknown",
+            aiStatus: ai["status"] as? String ?? "unknown",
+            apiConfigured: root["apiConfigured"] as? Bool ?? false,
+            modelCalls: count("modelCalls"),
+            decisions: count("decisions"),
+            appliedBees: count("appliedBees"),
+            noChange: count("noChange"),
+            traceCount: (music["traces"] as? [Any])?.count,
+            generation: (music["generation"] as? NSNumber)?.intValue,
+            deviceStatus: device["status"] as? String ?? "unknown",
+            lastStimulusId: device["lastStimulusId"] as? String
+        )
+    }
+
     /// 把「中台地址」输入框里可能写出的各种形态整理成能用的 base：空 scheme
     /// （`ytd.rickyke.com`）、结尾多带一个斜杠、前后空格。不整理的话 `URL(string:)`
     /// 要么构造失败抛 badURL，要么拼出 `https://host//api/snapshot` 这种可疑路径。
@@ -201,7 +249,9 @@ enum SwarmLink {
         guard let url = URL(string: baseURL + "/api/snapshot") else {
             throw SwarmError.badURL
         }
-        let (data, response) = try await URLSession.shared.data(from: url)
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 10
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw SwarmError.server("快照获取失败")
         }

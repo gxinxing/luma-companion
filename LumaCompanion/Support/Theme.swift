@@ -6,6 +6,9 @@
 import SwiftUI
 
 extension ShapeStyle where Self == Color {
+    static var lumaBackground: Color { Color(red: 0.055, green: 0.067, blue: 0.075) }
+    static var lumaSurface: Color { Color(red: 0.105, green: 0.12, blue: 0.13) }
+    static var lumaStroke: Color { Color.white.opacity(0.10) }
     /// Warm amber — the capture light. Dark-mode friendly, deliberately not the
     /// stock vendor app's yellow.
     static var lumaAccent: Color { Color(red: 0.98, green: 0.72, blue: 0.16) }
