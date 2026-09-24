@@ -5,7 +5,6 @@ import LumaCore
 struct DeviceView: View {
     @EnvironmentObject private var link: GlassesLink
     @AppStorage("swarm.baseURL") private var swarmURL: String = SwarmLink.defaultBaseURL
-    @AppStorage("swarm.operatorToken") private var swarmToken: String = ""
     @State private var snapshot: SwarmLink.SwarmSnapshot?
     @State private var snapshotError: String?
     @State private var swarmStatus: String?
@@ -173,7 +172,7 @@ struct DeviceView: View {
     private var uploadCard: some View {
         VStack(alignment: .leading, spacing: 13) {
             Text("把这一帧送入蜂群").font(.headline)
-            Text("使用最近一张眼镜照片；上报成功后可在上方看到设备刺激。")
+            Text("手机只发送照片特征。Jev 眼镜 Agent 会判断是否值得通知蜂群；原始照片保留在手机。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             TextField("中台地址", text: $swarmURL)
@@ -182,14 +181,11 @@ struct DeviceView: View {
                 .textInputAutocapitalization(.never)
                 .padding(13)
                 .background(Color.lumaBackground, in: RoundedRectangle(cornerRadius: 12))
-            SecureField("操作员令牌", text: $swarmToken)
-                .padding(13)
-                .background(Color.lumaBackground, in: RoundedRectangle(cornerRadius: 12))
             Button { uploadLatestCapture() } label: {
                 HStack {
                     if uploading { ProgressView().tint(.black) }
-                    else { Image(systemName: "arrow.up.right") }
-                    Text(uploading ? "正在上报…" : "上报最近一张")
+                    else { Image(systemName: "sparkles") }
+                    Text(uploading ? "Jev 正在判断…" : "交给 Jev 判断")
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -284,20 +280,20 @@ struct DeviceView: View {
 
     private func uploadLatestCapture() {
         guard !uploading, let data = link.lastCapture else { return }
+        let capturedAt = link.lastCaptureAt ?? Date()
+        let deviceName = link.deviceName ?? GlassesLink.fallbackDeviceName
         uploading = true
-        swarmStatus = "正在读取运行场次…"
+        swarmStatus = "正在确认演出并交给 Jev 眼镜 Agent…"
         Task {
             defer { uploading = false }
             do {
                 let runId = try await SwarmLink.currentRunID(baseURL: swarmURL)
-                let message = try await SwarmLink.sendCapture(
+                let message = try await SwarmLink.sendCaptureToAgent(
                     data,
-                    deviceName: link.deviceName ?? GlassesLink.fallbackDeviceName,
+                    deviceName: deviceName,
                     baseURL: swarmURL,
-                    token: swarmToken,
                     runId: runId,
-                    sequence: Int(Date().timeIntervalSince1970),
-                    capturedAt: link.lastCaptureAt ?? Date()
+                    capturedAt: capturedAt
                 )
                 swarmStatus = message
                 await refresh()
