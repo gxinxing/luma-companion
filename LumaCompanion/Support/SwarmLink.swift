@@ -1,23 +1,16 @@
 //
 //  SwarmLink.swift
-//  把眼镜拍摄的画面送进蜂群中台（aria-swarm）的通道。
+//  把眼镜拍摄的画面交给蜂群中的 Jev 眼镜 Agent 做判断。
 //
 //  链路与既有事实源完全对齐（aria-swarm origin/main）：
 //    1. 特征提取：与 src/glasses-stimulus-source.py 相同的语义 —— 32×32 下采样、
 //       Rec.709 亮度均值、平均色 HSL（色相桶）、Sobel 边缘密度、8×8 aHash。
 //    2. 合同：src/glasses-stimulus.schema.json（glasses-stimulus/v1）的字段形状。
-//    3. 强度：与 src/glasses-music-stimulus.mjs 的 INTENSITY_WEIGHTS 一致 ——
-//       0.5·brightness + 0.3·edgeDensity + 0.2·saturation（各自 ∈ [0,1]）。
-//    4. 上报：POST /api/stimuli { runId, id, source, atBeat?, intensity }，
-//       需要 Bearer ARIA_OPERATOR_TOKEN；runId 从 GET /api/snapshot 自动发现。
-//       atBeat 省略即可——服务端自动落到最早未封口的拍（蜂群侧 2026-09-24 确认）。
+//    3. 输入：只发送 brightness / edge_density / saturation，不上传原始图像。
+//    4. 决策：POST /api/glasses-agent/observe；由 Jev 决定是否值得刺激蜂群，
+//       runId 从 GET /api/snapshot 自动发现。Agent 端点随 aria-swarm PR #54 部署。
 //
-//  source.adapter 固定为 "glasses"：这是蜂群侧（出题方 EvoMap/主控）给的合同原文，
-//  不是我们自己起的名字。服务端 normalizeSource 只校验 kind∈{virtual,device} 和
-//  adapter 非空，任何字符串都能过，但按对方指定的值发，账本和演出页才对得上。
-//
-//  与 Python 生产者的数值不保证逐位一致（下采样算法不同），但语义一致、
-//  各特征同域 ∈ [0,1]，dedup 在本机内自洽（同一张图同一 dedup_id）。
+//  用户设备不能信任本地 intensity 直接刺激：最终是否刺激与刺激强度由 Jev Agent 决定。
 //
 
 import CoreGraphics
@@ -35,11 +28,6 @@ enum SwarmLink {
         get { UserDefaults.standard.string(forKey: "swarm.baseURL") ?? defaultBaseURL }
         set { UserDefaults.standard.set(newValue, forKey: "swarm.baseURL") }
     }
-    static var operatorToken: String {
-        get { UserDefaults.standard.string(forKey: "swarm.operatorToken") ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: "swarm.operatorToken") }
-    }
-
     // MARK: - 特征提取（32×32 网格，语义对齐 glasses-stimulus-source.py）
 
     struct Features {
@@ -169,13 +157,6 @@ enum SwarmLink {
         return String(format: "%016llx", UInt64(bits, radix: 2) ?? 0)
     }
 
-    // MARK: - 强度（与 INTENSITY_WEIGHTS 一致）
-
-    static func intensity(_ f: Features) -> Double {
-        let v = 0.5 * f.brightness + 0.3 * f.edgeDensity + 0.2 * f.saturation
-        return min(max(v, 0), 1)
-    }
-
     // MARK: - 中台交互
 
     struct SendReport {
@@ -270,68 +251,79 @@ enum SwarmLink {
         return runId
     }
 
-    /// 把一张捕获图作为 device 刺激上报。音乐侧合同是最小形状
-    /// `{ runId, id, source, atBeat?, intensity }` —— 服务端 addStimulus 只取这几个键，
-    /// 多带的特征/时间戳一律丢弃，且音乐运行时会拒绝额外键（污染 state.stimuli）。
-    /// 特征（brightness/edgeDensity/saturation）留在本机，只用来派生 intensity。
-    static func sendCapture(
+    /// 将 BLE 照片特征交给服务器上的 Jev 眼镜 Agent。原始照片留在手机；
+    /// Agent 决定不刺激也是一次成功且可解释的感知结果。
+    static func sendCaptureToAgent(
         _ imageData: Data,
         deviceName: String,
         baseURL: String,
-        token: String,
         runId: String,
-        sequence: Int,
         capturedAt: Date
     ) async throws -> String {
-        guard let f = features(from: imageData) else { throw SwarmError.badImage }
-        let intensity = intensity(f)
-        guard intensity.isFinite, (0...1).contains(intensity) else { throw SwarmError.badIntensity }
+        guard let features = features(from: imageData) else { throw SwarmError.badImage }
 
-        let isoFormatter = ISO8601DateFormatter()
-        let ts = isoFormatter.string(from: capturedAt)
-        let stimulusID = String(sha256Hex("glasses:\(deviceName)|\(ts)|\(sequence)").prefix(16))
-
+        let timestampFormatter = ISO8601DateFormatter()
+        timestampFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let timestamp = timestampFormatter.string(from: capturedAt)
+        let captureFingerprint = sha256Hex(imageData)
+        let captureId = "glasses-\(String(sha256Hex("\(deviceName)|\(timestamp)|\(captureFingerprint)").prefix(20)))"
         let body: [String: Any] = [
             "runId": runId,
-            "id": stimulusID,
-            "source": ["kind": "device", "adapter": "glasses"],
-            "intensity": intensity,
+            "captureId": captureId,
+            "features": [
+                "brightness": features.brightness,
+                "edge_density": features.edgeDensity,
+                "saturation": features.saturation,
+            ],
         ]
-        guard let url = URL(string: normalizedBaseURL(baseURL) + "/api/stimuli"),
+        guard let url = URL(string: normalizedBaseURL(baseURL) + "/api/glasses-agent/observe"),
               let payload = try? JSONSerialization.data(withJSONObject: body) else {
             throw SwarmError.badURL
         }
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = payload
-        // URLSession.shared 的默认资源超时是 60 秒、且会等连通性；现场网络（或手机还
-        // 挂在眼镜那个没有外网的 SoftAP 上）下这会表现为按钮上的菊花转很久。给出明确
-        // 上限，失败要快，好让人立刻改地址重来。
-        request.timeoutInterval = 15
+        request.timeoutInterval = 90
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if !token.isEmpty { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        request.setValue("no-store", forHTTPHeaderField: "Cache-Control")
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             let code = (response as? HTTPURLResponse)?.statusCode ?? -1
-            // 401 / 409 的回复体里通常写着真实原因（令牌无效、场次未运行、刺激形状不合规
-            // ……）。只看状态码的话，操作的人对着一句"HTTP 401"没法自己往前推进，而令牌
-            // 恰恰是演示开始前最容易缺的一环。
-            let body = String(data: data, encoding: .utf8)?
+            let detail = String(data: data, encoding: .utf8)?
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            let detail = (body?.isEmpty == false) ? String(body?.prefix(160) ?? "") : "无回复体"
-            throw SwarmError.server("上报被拒（HTTP \(code)）：\(detail)")
+            let message = detail.flatMap { $0.isEmpty ? nil : String($0.prefix(180)) } ?? "无回复体"
+            if code == 401 {
+                throw SwarmError.server("线上中台尚未部署 Jev 眼镜 Agent 接口（aria-swarm PR #54 需先合入并发布）；普通设备刺激接口不能替代 Agent 判断")
+            }
+            throw SwarmError.server("眼镜 Agent 未接通（HTTP \(code)）：\(message)")
         }
-        return "已上报 \(stimulusID) · 强度 \(String(format: "%.2f", intensity))"
+        guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let decision = root["decision"] as? [String: Any],
+              let willSignal = decision["willSignal"] as? Bool else {
+            throw SwarmError.server("眼镜 Agent 返回内容不完整，未确认本帧是否进入蜂群")
+        }
+
+        if willSignal {
+            guard let stimulus = root["stimulus"], !(stimulus is NSNull) else {
+                throw SwarmError.server("Jev 判定应通知蜂群，但本轮演出未接收刺激；请刷新场次后重试")
+            }
+            let intensity = decision["intensity"] as? Double ?? 0
+            return "Jev 已通知蜂群 · 强度 \(String(format: "%.2f", intensity)) · \(captureId)"
+        }
+
+        let model = decision["model"] as? String ?? "Jev"
+        let fallback = model == "fallback" ? "（本次使用本地降级规则）" : ""
+        return "Jev 判断本帧无需打扰音乐\(fallback) · \(captureId)"
     }
 
     enum SwarmError: LocalizedError {
-        case badURL, badImage, badIntensity, noRun(String), server(String)
+        case badURL, badImage, noRun(String), server(String)
 
         var errorDescription: String? {
             switch self {
             case .badURL: "中台地址无效"
             case .badImage: "无法解码图片"
-            case .badIntensity: "强度计算越界——本模块算错了"
             case let .noRun(reason): reason
             case let .server(reason): reason
             }

@@ -10,13 +10,11 @@
 - **主动感知的证据边界**：蜂群页读取 `/api/snapshot` 的本轮模型调用、判断、已应用蜂、音乐痕迹、乐句代际和设备来源；缺失指标显示「—」。当前拍照由人触发，持续自主采集、语音和 SECTION 9 任务层未在手机端实现。
 - **无眼镜热点**：当前导航不启动 Wi-Fi、RTSP 或眼镜文件 API。连续实时视频和眼镜内完整相册需要热点，暂不在手机动线中提供；记忆页显示的是 BLE 回传小图。
 - **最近拍摄卡片**：右滑保存到 iOS 相册（需允许「添加到相册」权限），左滑删除；触觉反馈。
-- **蜂群中台上传**：拍摄画面按 glasses-stimulus/v1 合同语义提取本机特征（32×32 下采样、
-  Rec.709 亮度、HSL 色相桶、Sobel 边缘密度、8×8 aHash），强度 = 0.5·亮度 + 0.3·边缘密度 +
-  0.2·饱和度（与 src/glasses-music-stimulus.mjs 的 INTENSITY_WEIGHTS 一致），POST /api/stimuli
-  送进演出（runId 自动从 /api/snapshot 发现，操作员令牌在蜂群页配置）。
-  接口预检可运行 `TOKEN=<操作员令牌> ./verify-swarm.sh [中台地址]`。脚本在 2026-09-24
-  对本地真实 aria-swarm 服务验证了 200 → `music.stimuli` 回查命中，也验证无运行场次时
-  返回非零；它发送的是合成 HTTP 设备刺激，仍需用眼镜新拍照片做真机验收。
+- **Jev 眼镜 Agent**：从 BLE 照片本机提取亮度、边缘密度、饱和度，POST
+  `/api/glasses-agent/observe`；Jev 决定是否值得通知蜂群以及刺激强度，不上传原始照片，
+  不由手机预设音乐改动。runId 自动从 `/api/snapshot` 发现。客户端已接上该合同，
+  但截至 2026-09-24 09:47，线上站点该路径仍返回 401，PR #54 尚未合入/部署，
+  所以当前不能宣称眼镜到生产音乐的端到端完成。PR 部署后无需设备操作员令牌。
 - **协议零硬编码**：所有字节、URL、定时都来自 `luma-core` 的 Rust 核心
   （经 UniFFI 生成的 Swift binding，`import LumaCore`）。
 - **与 LumaDemo 的关键差异**：
@@ -35,6 +33,16 @@
   AI 语音闭环（眼镜 Opus → STT → TTS 留 V2）、设置写入。
 
 ## 怎么跑
+
+## 当前交付状态（2026-09-24）
+
+- aria-swarm 最新 `origin/main` 已快进到 `b67ce67`；公网 `https://ytd.rickyke.com`
+  健康检查正常，快照显示演出运行中、Jev 决策和实际音符改动在发生，设备刺激计数为 0。
+- 手机端改为将本机图像特征交给 Jev 眼镜 Agent，并按 Agent 的 `willSignal` 结果显示
+  已触发或场景无需打扰。iOS 应用代码已调用 `/api/glasses-agent/observe`；该端点在
+  aria-swarm PR #54 中，生产站点尚未部署。手机真机 BLE 与生产 E2E 还未实测。
+- 本轮 Swift 源码修改已于 09:50 通过 `xcodebuild -scheme LumaCompanion -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build`；这是无签名编译，不是装机或真机 E2E。项目状态和下一步见
+  [`../PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md)。
 
 前置（一次性）：
 
