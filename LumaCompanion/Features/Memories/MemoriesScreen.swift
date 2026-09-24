@@ -536,7 +536,6 @@ struct MemoriesScreen: View {
 
             // 重试连接眼镜
             Button("重试连接眼镜相册") {
-                model.localMode = false
                 model.reset()
                 model.start()
             }

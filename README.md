@@ -86,6 +86,8 @@ LumaCompanion/
 
 ## 验证状态（诚实边界）
 
+- 2026-09-24 09:02：重新运行 `xcodegen` 与无签名 iOS device 目标构建；修复记忆页本地相册兜底的 `private(set)` 写入和图片视图参数编译错误后，`xcodebuild -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build` **BUILD SUCCEEDED**（包含 ATS 配置、SPM 本地包解析与链接）。iPhone 15 Pro 目前在 `devicectl` 中为 unavailable；本轮尚未签名、装机或做眼镜端到端验证。构建日志：`/tmp/lumacompanion-build-20260924.log`。
+
 - 2026-09-24 02:45：**提交前冲刺轮——31 项审计修复完成**（双线审计 38 项发现；崩溃级 5、演示主链路 9、交互/数据 17；另有 7 项有据不修）。构建与部署：
   - iOS Simulator（iPhone 17 / iOS 26.5）：`xcodebuild … build` → **BUILD SUCCEEDED**，安装+启动+截图确认 UI 正常渲染
   - iOS 真机（iPhone 15 Pro，team 2TTT5WBW7Y）：签名构建 **BUILD SUCCEEDED**，已 `devicectl` 安装（解锁点图标即启动）

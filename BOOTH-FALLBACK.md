@@ -11,7 +11,7 @@
 ## 今晚实测出的四条硬事实
 
 1. **服务端 `authorized()` 是 `!token || Bearer 匹配`** —— 没设令牌时设备通道全部放行。
-   所以「请他把令牌置空」比「问他要令牌值」更容易被接受：他不泄密，我们也不需要知道值。
+   这解释了此前提出的置空方案；公网设备通道会因此对所有人开放，现场优先用临时令牌并在演示后轮换。
 2. **`trustedRequest()` 只放行 `127.0.0.1` / `localhost` / `ARIA_PUBLIC_HOSTS`**。
    手机用局域网 IP 打过来若 `ARIA_PUBLIC_HOSTS` 没带上这个 IP，会得到 **403 而不是 401**，
    极容易误判成令牌问题。`booth-console.sh` 已处理。
@@ -21,16 +21,13 @@
    **推论：眼镜掉了，观众触屏/挥手一样能把蜂群 AI 点着**（那个入口免令牌，是真的）。
 4. **本机 AI 是通的** —— key 有效、网络可达，不需要 Clash TUN。之前误判"出不去网"是没喂刺激。
 
-## 甲档：请 Ricky 把令牌置空（最省事，已发出）
+## 甲档：请 Ricky 提供临时操作员令牌
 
-已在 PR #43 发出：https://github.com/rickyke2023-ctrl/aria-swarm/pull/43#issuecomment-5801496793
+此前在 PR #43 提出过置空方案：https://github.com/rickyke2023-ctrl/aria-swarm/pull/43#issuecomment-5801496793。当前建议改为短期令牌。
 
 微信/飞书短话术（可直接复制）：
 
-> Ricky，求个 1 分钟的事：你服务器 `/opt/aria-swarm/.env` 里把 `ARIA_OPERATOR_TOKEN` 置空重启一下就行。
-> 服务端判定是「没设令牌就全部放行」，所以这样我 App 就能上报，你也不用把令牌值给我。
-> 要是不放心全程无鉴权，就临时设一个只今天用的值（比如 `booth-2026`）发我也行。
-> 今天 11 点封板、13 点评委巡展，我这边眼镜端全好了就差这把钥匙。
+> Ricky，眼镜 App 的无签名设备目标构建已经通过，生产设备通道仍需操作员令牌。请为今天的联调设置一个临时 `ARIA_OPERATOR_TOKEN`，通过私下渠道发我，演示后轮换；不要贴在 PR 或网页里。我拿到后会拍一张新照片，核对生产的 device 刺激、蜂决策和音符因果。若现在不方便，我会用自带实例演示，并明确标为备用场次。
 
 ## 乙档：自带笔记本起一场（不靠任何人）
 
@@ -73,11 +70,11 @@ ARIA_OPERATOR_TOKEN=xxx ./booth-console.sh
 眼镜只做展示道具：递给观众看、讲 BLE 四条通道（AA12/AA13/AA14/AA15）。
 蜂群靠观众触屏/挥手 + 网页虚拟刺激驱动。SECTION 9 八条照样闭环。
 
-## 你要在自己终端敲的那条命令（乙档前提）
+## 真机装机命令（乙档前提）
 
 `project.yml` 已补 `NSAppTransportSecurity: NSAllowsLocalNetworking: true`——
 **没有它，iOS 会拦死明文 http，手机连局域网中台直接失败**。
-agent 的执行环境跑不了 xcodebuild（SPM 沙箱 `sandbox_apply` 被拒），必须你手动敲：
+2026-09-24 09:02 已在 agent 环境重跑 `xcodegen` 和无签名 iOS device 构建，修复两处 Swift 编译错误后 **BUILD SUCCEEDED**。签名安装仍需 iPhone 连接、解锁并在 `devicectl` 中可用；当前设备为 unavailable。手机在线后在自己的终端执行：
 
 ```bash
 PROJ="/Users/simon/Documents/01_AI and Code Development/EvoTavern 进化酒馆黑客松/luma-companion"

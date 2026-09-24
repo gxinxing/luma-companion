@@ -105,6 +105,7 @@ struct CachedImage: View {
 /// 异步读盘 + 解码 + 缓存。给本地 Captures 里的文件用；读不到就 fallback。
 struct CachedFileImage: View {
     let url: URL
+    var contentMode: ContentMode = .fill
 
     @State private var image: UIImage?
 
@@ -113,7 +114,7 @@ struct CachedFileImage: View {
             if let image {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: contentMode)
             } else {
                 Image(systemName: "photo").foregroundStyle(.secondary)
             }
